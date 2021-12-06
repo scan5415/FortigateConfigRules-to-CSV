@@ -22,6 +22,7 @@ Param
 )
 
 #need some empty items to load config
+$includeColumns = "id","name","srcintf","srcaddr","dstintf","dstaddr","service","nat","action","schedule","status","utm-status","ssl-ssh-profile","av-profile","webfilter-profile","application-list","logtraffic","groups"
 $loadedConfig;
 $workingFolder;
 $fileName;
@@ -46,9 +47,6 @@ else {
     $fileName = Split-Path $fortigateConfig -Leaf;
 }
 
-#all known policy properties in fortigate rules. need this to ensure that data isn't missing in spreadsheet.
-$dummyRule = Get-Content .\fortiDummyRule.txt
-
 
 #initialize an empty item and object array to be used in the loop below
 $ruleList = New-Object System.Collections.ArrayList;
@@ -57,25 +55,8 @@ $policySection = $false;
 $vdomConfig = $false;
 $vdom;
 
-$modifiedConfig = @();
+$modifiedConfig = $loadedConfig;
 
-#copy the loaded config to a new config, adding the dummy rule where necessary
-foreach ($line in $loadedConfig) {
-    #look for the firewall policy section of the config
-    if ($line.Trim() -eq "config firewall policy") {
-        #need to pull in a dummy rule with all the known policy properties
-        $modifiedConfig += $line;
-        foreach ($prop in $dummyRule)
-        {
-            $modifiedConfig += $prop;
-
-        }
-        continue;
-    }
-    else {
-        $modifiedConfig += $line;
-    }
-}
 
 foreach ($line in $modifiedConfig) {
     #look for the firewall policy section of the config
@@ -115,13 +96,14 @@ foreach ($line in $modifiedConfig) {
     if (($line.Trim() -match "^end") -and ($policySection)) {
         $policySection = $false;
         $date = Get-Date -Format yyyyMMddhhmmss
+        
         $ruleList = $ruleList | Select-Object -Skip 1
         if($utf8)
         {
-            $ruleList | Export-Csv -Encoding UTF8 "$workingFolder\rules-$fileName-$vdom-$date-$fileCount.csv" -NoTypeInformation;
+            $ruleList | Select-Object $includeColumns | Export-Csv -Encoding UTF8 "$workingFolder\rules-$fileName-$vdom-$date-$fileCount.csv" -NoTypeInformation;
         }
         else {
-            $ruleList | Export-Csv "$workingFolder\rules-$fileName-$vdom-$date-$fileCount.csv" -NoTypeInformation;
+            $ruleList | Select-Object $includeColumns | Export-Csv "$workingFolder\rules-$fileName-$vdom-$date-$fileCount.csv" -NoTypeInformation;
         }
         
         $fileCount++;
