@@ -1,9 +1,10 @@
-This is a collection of scripts to assist in auditing firewall rules.
+This Script read the Firewall Rules from a FortiGate Config Backup and Export it to CSV.
 
-* fortigate/Parse-FortiGateRules.ps1 reads a FortiGate config file and pulls out the rules for each VDOM in the file into a CSV. 
+# How it's works
+1. Download the .ps1 File and save it to your local Computer
+2. Run the Script
+`RulesToCSV.ps1 -FortiGateConfig <Path to your Backup File>`
+3. The Script generate a new CSV File in the Folder from your Backup File
 
-Other Links:
-* [Router and Switch Backups](https://github.com/robvandenbrink/rtrbk) - Tools to pull firewall, router, and switch configs from devices
-* [Vulnerability Compliance Report](https://github.com/Shellntel/vcr) - Parse Nessus files into HTML reports
-* [AuditCasts Scripts](https://github.com/dhoelzer/AuditcastsScripts) - Scripts for performing various audit tasks such as PCI validation and DNS mapping
-* [SecLists](https://github.com/danielmiessler/SecLists) - Lists of passwords and other resources helpful for assessments
+# Configuration
+If you need to change the exported columns, check the `$includeColumns` Parameter in the .ps1 File and extend or change your needed Columns.
